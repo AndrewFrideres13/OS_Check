@@ -1,0 +1,121 @@
+These Windows services are started:
+
+   AOMEI Backupper Scheduler Service
+   Application Host Helper Service
+   Application Information
+   ASGT
+   Background Tasks Infrastructure Service
+   Base Filtering Engine
+   CDPUserSvc_20c668f
+   CNG Key Isolation
+   COM+ Event System
+   Computer Browser
+   Connected Devices Platform Service
+   Connected User Experiences and Telemetry
+   Contact Data_20c668f
+   CoreMessaging
+   Credential Manager
+   Cryptographic Services
+   Data Sharing Service
+   DCOM Server Process Launcher
+   Device Association Service
+   DHCP Client
+   Diagnostic Policy Service
+   Diagnostic Service Host
+   Diagnostic System Host
+   Distributed Link Tracking Client
+   DNS Client
+   Function Discovery Provider Host
+   Function Discovery Resource Publication
+   Group Policy Client
+   HomeGroup Provider
+   Human Interface Device Service
+   IKE and AuthIP IPsec Keying Modules
+   Intel Security PEF Service
+   Intel(R) Capability Licensing Service Interface
+   Intel(R) Dynamic Application Loader Host Interface Service
+   Intel(R) Management and Security Application Local Management Service
+   Intel(R) Management and Security Application User Notification Service
+   Intel(R) ME Service
+   IP Helper
+   IPsec Policy Agent
+   LMIGuardianSvc
+   Local Session Manager
+   LogMeIn Hamachi Tunneling Engine
+   McAfee AP Service
+   McAfee Boot Delay Start Service
+   McAfee CSP Service
+   McAfee Firewall Core Service
+   McAfee Home Network
+   McAfee Module Core Service
+   McAfee Personal Firewall Service
+   McAfee Platform Services
+   McAfee Proxy Service
+   McAfee Service Controller
+   McAfee Validation Trust Protection Service
+   McAfee VirusScan Announcer
+   Message Queuing
+   Microsoft Office ClickToRun Service
+   Net.Msmq Listener Adapter
+   Net.Pipe Listener Adapter
+   Network Connection Broker
+   Network Connections
+   Network List Service
+   Network Location Awareness
+   Network Store Interface Service
+   NVIDIA Display Container LS
+   NVIDIA LocalSystem Container
+   NVIDIA Telemetry Container
+   Plug and Play
+   Power
+   Print Spooler
+   Program Compatibility Assistant Service
+   Remote Procedure Call (RPC)
+   RPC Endpoint Mapper
+   Security Accounts Manager
+   Security Center
+   Server
+   Shell Hardware Detection
+   SQL Server Browser
+   SQL Server VSS Writer
+   SSDP Discovery
+   State Repository Service
+   Storage Service
+   Superfetch
+   Sync Host_20c668f
+   System Event Notification Service
+   System Events Broker
+   Task Scheduler
+   TCP/IP NetBIOS Helper
+   TeamViewer 12
+   Themes
+   Tile Data model server
+   Time Broker
+   UPnP Device Host
+   User Data Access_20c668f
+   User Data Storage_20c668f
+   User Manager
+   User Profile Service
+   Windows Audio
+   Windows Audio Endpoint Builder
+   Windows Connection Manager
+   Windows Driver Foundation - User-mode Driver Framework
+   Windows Event Log
+   Windows Firewall
+   Windows Font Cache Service
+   Windows Image Acquisition (WIA)
+   Windows License Manager Service
+   Windows Management Instrumentation
+   Windows Media Player Network Sharing Service
+   Windows Modules Installer
+   Windows Phone IP over USB Transport (IpOverUsbSvc)
+   Windows Process Activation Service
+   Windows Push Notifications System Service
+   Windows Search
+   WinHTTP Web Proxy Auto-Discovery Service
+   WLAN AutoConfig
+   Workstation
+   World Wide Web Publishing Service
+
+The command completed successfully.
+

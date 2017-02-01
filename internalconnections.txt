@@ -1,0 +1,38 @@
+    
+Ethernet:
+Node IpAddress: [25.12.86.191] Scope Id: []
+
+                NetBIOS Local Name Table
+
+       Name               Type         Status
+    ---------------------------------------------
+    ANDREWSDESK    <20>  UNIQUE      Registered 
+    ANDREWSDESK    <00>  UNIQUE      Registered 
+    WORKGROUP      <00>  GROUP       Registered 
+    WORKGROUP      <1E>  GROUP       Registered 
+    WORKGROUP      <1D>  UNIQUE      Registered 
+    __MSBROWSE__<01>  GROUP       Registered 
+    
+Local Area Connection:
+Node IpAddress: [192.168.1.15] Scope Id: []
+
+                NetBIOS Local Name Table
+
+       Name               Type         Status
+    ---------------------------------------------
+    ANDREWSDESK    <20>  UNIQUE      Registered 
+    ANDREWSDESK    <00>  UNIQUE      Registered 
+    WORKGROUP      <00>  GROUP       Registered 
+    WORKGROUP      <1E>  GROUP       Registered 
+    WORKGROUP      <1D>  UNIQUE      Registered 
+    __MSBROWSE__<01>  GROUP       Registered 
+    
+Ethernet:
+Node IpAddress: [25.12.86.191] Scope Id: []
+
+    No Connections
+    
+Local Area Connection:
+Node IpAddress: [192.168.1.15] Scope Id: []
+
+    No Connections

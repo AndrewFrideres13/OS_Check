@@ -1,5 +1,4 @@
 @ECHO off
-
 NET SESSION >nul 2>&1 && goto noUAC
 set n=%0 %*
 set n=%n:"=" ^& Chr(34) ^& "%
@@ -13,6 +12,11 @@ exit /B
 
 cd /D \
 cd %~dp0
+
+ECHO Moving files and setting things up...
+xcopy  "%CD:~0,3%OS_Check\OS_CheckLT.bat" "C:\Users\%USERNAME%\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup"
+ECHO Process Completed Succesffuly!
+cls
 
 ECHO %DATE% %TIME% %ver%
 
@@ -35,6 +39,7 @@ cls
 wmic ComputerSystem get TotalPhysicalMemory
 wmic os get freephysicalmemory /format:value
 wmic os get freevirtualmemory /format:value
+timeout /t 60
 )
 cls
 
@@ -53,7 +58,7 @@ IF /I "%responseBloat%"=="y" (
 cls
 
 echo.
-SET /p responseDiag=Run diagnostics check (Y/N)?:
+SET /p responseDiag=Run diagnostics check (Y/N) (Windows 10 Only)?:
 IF /I "%responseDiag%"=="y" (
   netsh wlan show wlanreport > %CD%\wlanreport.txt
   start C:\ProgramData\Microsoft\Windows\WlanReport\wlan-report-latest.html
