@@ -4,7 +4,6 @@ set n=%0 %*
 set n=%n:"=" ^& Chr(34) ^& "%
 echo Set objShell = CreateObject("Shell.Application")>"%tmp%\cmdUAC.vbs"
 echo objShell.ShellExecute "cmd.exe", "/c start " ^& Chr(34) ^& "." ^& Chr(34) ^& " /d " ^& Chr(34) ^& "%CD%" ^& Chr(34) ^& " cmd /c %n%", "", "runas", ^1>>"%tmp%\cmdUAC.vbs"
-echo Elevating to admin...
 cscript "%tmp%\cmdUAC.vbs" //Nologo
 del "%tmp%\cmdUAC.vbs"
 exit /B
@@ -13,15 +12,9 @@ exit /B
 cd /D \
 cd %~dp0
 
-ECHO Moving files and setting things up...
-xcopy  "%CD:~0,3%OS_Check\OS_CheckLT.bat" "C:\Users\%USERNAME%\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup"
-ECHO Process Completed Succesffuly!
-cls
-
 ECHO %DATE% %TIME% %ver%
 
 wmic os get version
-
 NETSTAT -nbo > %CD%\outwardconnections.txt
 nbtstat -n > %CD%\internalconnections.txt
 nbtstat -s >> %CD%\internalconnections.txt
@@ -46,6 +39,7 @@ cls
 echo.
 SET /p responseSys=Run system check (Y/N)?:
 IF /I "%responseSys%"=="y" (
+  wscript %CD:~0,3%OS_Check\USB.vbs
   sfc /scannow
 )
 cls
@@ -81,6 +75,6 @@ IF /I "%responseCleanRun%"=="y" (
 )
 cls
 
-ECHO Process completed at %TIME%. Be sure to examine the files created in
-ECHO            the program folder. Exiting now...
+ECHO Process completed at %TIME%.
+ECHO      Exiting now...
 timeout /t 5 /nobreak
