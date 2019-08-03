@@ -1,96 +1,80 @@
-Set objFSO=CreateObject("Scripting.FileSystemObject")
+set objFSO=CreateObject("Scripting.FileSystemObject")
 ' How to write 
 outFile="USBConnectedItems.txt" ' Name of the text file we will use for connections
 If objFSO.FileExists(sname) Then
   objFSO.DeleteFile outfile ' Delete file if it exists so we dont get dupes
 End If
-Set objFile = objFSO.CreateTextFile(outFile, True) 'Create new file 
+set objFile = objFSO.CreateTextFile(outFile, True) 'Create new file 
 
 On Error Resume Next
-strComputer = "."
-Set objWMIService = GetObject("winmgmts:\\" & strComputer & "\root\cimv2")
-Set colDevices = objWMIService.ExecQuery ("Select * From Win32_USBControllerDevice")
-For Each objDevice in colDevices
+strComputer = "." 'use the local comp the script is running against
+set objWMIService = GetObject("winmgmts:\\" & strComputer & "\root\cimv2")
+'Query system for all objs connected via USB
+set colDevices = objWMIService.ExecQuery ("Select * From Win32_USBControllerDevice")
+for each objDevice in colDevices
  strDeviceName = objDevice.Dependent
- 'msgbox strDeviceName
- strQuotes = Chr(34)
- strDeviceName = Replace(strDeviceName, strQuotes, "")
+ strDeviceName = Replace(strDeviceName, Chr(34), "")
  arrDeviceNames = Split(strDeviceName, "=")
  strDeviceName = arrDeviceNames(1)
- Set colUSBDevices = objWMIService.ExecQuery ("Select * From Win32_PnPEntity Where DeviceID = '" & strDeviceName & "'")
- For Each objUSBDevice in colUSBDevices
- y = objUSBDevice.Caption 
- if instr(1,y,"USB Device") then x = x & "USB Device: " & y & vbcrlf
- Next 
+ 
+ set colUSBDevices = objWMIService.ExecQuery ("Select * From Win32_PnPEntity Where DeviceID = '" & strDeviceName & "'")
+ for each objUSBDevice in colUSBDevices
+  usbDeviceName = objUSBDevice.Caption 
+  if inStr(1,usbDeviceName,"USB") then x = x & "USB Device: " & usbDeviceName & vbcrlf 'vbcrlf is a line feed remember
+  Next 
 Next
 objFile.WriteLine x
- 
+objFile.WriteLine "*********End Generic Dev Info*********"
 'Get USB details for DISKS
-y=""
+usbDeviceName=""
 for i = 0 to 10
-DiskIndex=i
-  Set objWMIService = GetObject("winmgmts:\\" & strComputer  & "\root\cimv2")
-' WMI Query to the Win32_OperatingSystem
-    x = "\\\\.\\PHYSICALDRIVE" & DiskIndex  'for a query we must use \\ for a single \
-    x = "Select * from Win32_DiskDrive where InterfaceType = 'USB' AND DeviceID = '" & x & "'"
-    Set colItems = objWMIService.ExecQuery(x)
-    For Each DD In colItems
-        y = y & vbcrlf & "Device " & DiskIndex & ":" & DD.Model
-        y = y & " FWARE:" & DD.FirmwareRevision
-        y = y & " IFACE_TYPE:" & DD.InterfaceType  'USB
-        y = y & " MEDIA_TYPE:" &  DD.MediaType
-        if not IsNull(DD.Size) then y = y & " SIZE:" &  DD.size
-   Next
+  DiskIndex=i
+  ' WMI Query to the Win32_OperatingSystem
+  x = "\\\\.\\PHYSICALDRIVE" & DiskIndex  'for a query we must use \\ for a single \
+  x = "Select * from Win32_DiskDrive where DeviceID = '" & x & "'"
+    
+  set colItems = objWMIService.ExecQuery(x)
+  for each DD In colItems
+    usbDeviceName = usbDeviceName & vbcrlf & "Device " & DiskIndex & ":" & DD.Model
+    usbDeviceName = usbDeviceName & " FWARE:" & DD.FirmwareRevision
+    usbDeviceName = usbDeviceName & "  IFACE_TYPE:" & DD.InterfaceType  'USB
+    usbDeviceName = usbDeviceName & "  MEDIA_TYPE:" &  DD.MediaType
+    if not IsNull(DD.Size) then usbDeviceName = usbDeviceName & "  SIZE:" &  DD.size & vbcrlf
+  Next
 Next
-objFile.WriteLine y 
+objFile.WriteLine usbDeviceName 
 objFile.WriteLine "--------------------------------------"
-
-'Find USB drives (or a specific drive model - in this case KINGSTON USB drives)
-'If you want all USB drives listed, comment out with a ' the  If line and the End If line
-strComputer = "."
-TargetPath = ""
-Set objWMIService = GetObject("winmgmts:\\" & strComputer & "\root\cimv2")
-Set colDiskDrives = objWMIService.ExecQuery("SELECT * FROM Win32_DiskDrive WHERE InterfaceType = 'USB'")
-For Each objDrive In colDiskDrives
-    'If Instr(1,ucase(objDrive.Caption), "KINGSTON") > 0 Then
+'Find USB drives (or a specific drive model)
+set colDiskDrives = objWMIService.ExecQuery("SELECT * FROM Win32_DiskDrive")
+for each objDrive In colDiskDrives
  strDeviceID = Replace(objDrive.DeviceID, "\", "\\")
- Set colPartitions = objWMIService.ExecQuery ("ASSOCIATORS OF {Win32_DiskDrive.DeviceID=""" & strDeviceID & """} WHERE AssocClass = " & "Win32_DiskDriveToDiskPartition")
- For Each objPartition In colPartitions
- Set colLogicalDisks = objWMIService.ExecQuery("ASSOCIATORS OF {Win32_DiskPartition.DeviceID=""" & objPartition.DeviceID & """} WHERE AssocClass = " & "Win32_LogicalDiskToPartition")
- For Each objLogicalDisk In colLogicalDisks
- TargetPath = TargetPath & objLogicalDisk.DeviceID & vbtab
+ set colPartitions = objWMIService.ExecQuery ("ASSOCIATORS OF {Win32_DiskDrive.DeviceID=""" & strDeviceID & """} WHERE AssocClass = " & "Win32_DiskDriveToDiskPartition")
+ for each objPartition In colPartitions
+   set colLogicalDisks = objWMIService.ExecQuery("ASSOCIATORS OF {Win32_DiskPartition.DeviceID=""" & objPartition.DeviceID & """} WHERE AssocClass = " & "Win32_LogicalDiskToPartition")
+   for each objLogicalDisk In colLogicalDisks
+    TargetPath = TargetPath & objLogicalDisk.DeviceID & " "
+    Next
  Next
- Next
-    'End If
 Next
 objFile.WriteLine "USB Drive(s) mounted at " & TargetPath
 objFile.WriteLine "--------------------------------------"
 
 'Show drive letters associated with each
-ComputerName = "."
-Set wmiServices  = GetObject ( _
-    "winmgmts:{impersonationLevel=Impersonate}!//" _
-    & ComputerName)
+set wmiServices  = GetObject ("winmgmts:{impersonationLevel=Impersonate}!//" & strComputer)
 ' Get physical disk drive
-Set wmiDiskDrives =  wmiServices.ExecQuery ( "SELECT Caption, DeviceID FROM Win32_DiskDrive WHERE InterfaceType = 'USB'")
+set wmiDiskDrives =  wmiServices.ExecQuery ( "SELECT Caption, DeviceID FROM Win32_DiskDrive")
 
-For Each wmiDiskDrive In wmiDiskDrives
-    x = wmiDiskDrive.Caption & Vbtab & " " & wmiDiskDrive.DeviceID 
-
-    'Use the disk drive device id to
-    ' find associated partition
-    query = "ASSOCIATORS OF {Win32_DiskDrive.DeviceID='" & wmiDiskDrive.DeviceID & "'} WHERE AssocClass = Win32_DiskDriveToDiskPartition"    
-    Set wmiDiskPartitions = wmiServices.ExecQuery(query)
-
-    For Each wmiDiskPartition In wmiDiskPartitions
-        'Use partition device id to find logical disk
-        Set wmiLogicalDisks = wmiServices.ExecQuery ("ASSOCIATORS OF {Win32_DiskPartition.DeviceID='" _
-            & wmiDiskPartition.DeviceID & "'} WHERE AssocClass = Win32_LogicalDiskToPartition") 
-			x = ""
-        For Each wmiLogicalDisk In wmiLogicalDisks
-            x = x & wmiDiskDrive.Caption & " " & wmiDiskPartition.DeviceID & " = " & wmiLogicalDisk.DeviceID
-			objFile.WriteLine x 
-        Next      
-    Next
+for each wmiDiskDrive In wmiDiskDrives
+  'Use the disk drive device id to find associated partition    
+  set wmiDiskPartitions = wmiServices.ExecQuery("ASSOCIATORS OF {Win32_DiskDrive.DeviceID='" & wmiDiskDrive.DeviceID & "'} WHERE AssocClass = Win32_DiskDriveToDiskPartition")
+  for each wmiDiskPartition In wmiDiskPartitions
+    'Use partition device id to find logical disk
+    set wmiLogicalDisks = wmiServices.ExecQuery ("ASSOCIATORS OF {Win32_DiskPartition.DeviceID='" & wmiDiskPartition.DeviceID & "'} WHERE AssocClass = Win32_LogicalDiskToPartition") 
+    x = ""
+    for each wmiLogicalDisk In wmiLogicalDisks
+      x = x & wmiDiskDrive.Caption & " " & wmiDiskPartition.DeviceID & " Drive Letter " & wmiLogicalDisk.DeviceID
+      objFile.WriteLine x & vbcrlf
+      Next      
+  Next
 Next
 objFile.close

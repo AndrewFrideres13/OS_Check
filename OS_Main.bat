@@ -17,7 +17,6 @@ title OS Check
 cd /D %~dp0
 
 ECHO %DATE% %TIME% 
-::OS Info below
 wmic OS get Caption, CSDVersion, OSArchitecture,Version
 wmic BIOS get Manufacturer,Name,SMBIOSBIOSVersion,Version
 wmic CPU get Name,NumberOfCores,NumberOfLogicalProcessors
