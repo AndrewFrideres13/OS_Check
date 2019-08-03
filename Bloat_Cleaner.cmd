@@ -1,31 +1,22 @@
-@set include_list= /c:"wallpaper" /c:"ebay" /c:"screen" /c:"tune" /c:"bar " /c:"coupon" /c:"rebate" /c:"free" /c:"shop " /c:"bargain" /c:"trial" /c:"eval" /c:"clean" /c:"scan" /c:"smile" /c:"web" /c:"fun " /c:"optimize" /c:"free" /c:"search" /c:"registry" /c:"arcade" /c:"tweak" /c:"price" /c:"deal" /c:"weather" /c:"game" /c:"speed" /c:"discount" /c:"price" /c:"tab " /c:"speed" /c:"my" /c:"download" /c:"Chrome"
-:: Above is the bloatware names to search for
-
+@set bloat_to_search= /c:"wallpaper" /c:"screen" /c:"tune" /c:"bar " /c:"coupon" /c:"rebate" /c:"free" /c:"shop " /c:"bargain" /c:"trial" /c:"eval" /c:"clean" /c:"scan" /c:"smile" /c:"web" /c:"fun " /c:"optimize" /c:"free" /c:"search" /c:"registry" /c:"arcade" /c:"tweak" /c:"price" /c:"deal" /c:"weather" /c:"game" /c:"speed" /c:"discount" /c:"price" /c:"tab " /c:"speed" /c:"my" /c:"download"
 @echo off
-:: Elevate to admin, rediret standard output stream to nul, and do the same for stndrd error output
-NET SESSION >nul 2>&1 && goto noUAC 
-
 set n=%0 %*
 set n=%n:"=" ^& Chr(34) ^& "%
-echo Set objShell = CreateObject("Shell.Application")>"%tmp%\cmdUAC.vbs"
-echo objShell.ShellExecute "cmd.exe", "/c start " ^& Chr(34) ^& "." ^& Chr(34) ^& " /d " ^& Chr(34) ^& "%CD%" ^& Chr(34) ^& " cmd /c %n%", "", "runas", ^1>>"%tmp%\cmdUAC.vbs"
-cscript "%tmp%\cmdUAC.vbs" //Nologo
-exit /b
-
-:noUAC
 if not '%1'=='' goto s2
+::Checks to see if these files already exist, if so delete them so we can refresh them
 if exist "%tmp%\tmpUC.txt" del "%tmp%\tmpUC.txt" "%tmp%\tmpUCN.txt"
+::Will direct the output of what we find to a file
 echo. > "%tmp%\tmpUCN.txt"
-cls
+
 title Bloat Cleaner
 echo Scanning for Bloatware...
-FOR /F "tokens=1 delims=|" %%n IN ('reg query HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall /s ^& reg query HKLM\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall /s 2^>nul ^& reg query HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall /s 2^>nul ^& reg query HKCU\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall /s 2^>nul ') DO echo %%n >> "%tmp%\tmpUC.txt"
+for /F "tokens=1 delims=|" %%n IN ('reg query HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall /s ^& reg query HKLM\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall /s 2^>nul ^& reg query HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall /s 2^>nul ^& reg query HKCU\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall /s 2^>nul ') DO echo %%n >> "%tmp%\tmpUC.txt"
 
 set p=0
 set t=
 
 setlocal enabledelayedexpansion
-  FOR /F "tokens=1-13" %%n IN ('type "%tmp%\tmpUC.txt"') DO (
+  for /F "tokens=1-13" %%n IN ('type "%tmp%\tmpUC.txt"') DO (
      set n=%%n
      set /a p=!p! + 1
 
@@ -39,7 +30,7 @@ setlocal enabledelayedexpansion
      )
 
      if /i '!n!'=='DisplayName' (
-        echo # %%p %%q %%r %%s %%t %%u %%v %%w %%x %%y %%z | findstr /i %include_list% && (
+        echo # %%p %%q %%r %%s %%t %%u %%v %%w %%x %%y %%z | findstr /i %bloat_to_search% && (
            set d=1
            echo %%p %%q %%r %%s %%t %%u %%v %%w %%x %%y %%z >> "%tmp%\tmpUCN.txt"
         )
@@ -58,11 +49,14 @@ setlocal disabledelayedexpansion
 
 :s2
 if not '%1'=='' (
-   FOR /F "skip=%1 tokens=1-26" %%a IN ('type "%tmp%\tmpUC.txt"') DO (
+   for /F "skip=%1 tokens=1-26" %%a IN ('type "%tmp%\tmpUC.txt"') DO (
       set c=%%c %%d %%e %%f %%g %%h %%i %%j %%k %%l %%m %%n %%o %%p %%q %%r %%s %%t %%u %%v %%w %%x %%y %%z
       goto s3
    )
 )
+
+if not "%t%"=="" call %0%t%
+endlocal
 goto exit
 
 :s3
@@ -78,7 +72,6 @@ goto spacer
 
 :msiexec
 set c=%c:/i=/X%
-::set c=%c:/I=/X%
 set c=%c% /qb
 goto spacer
 
@@ -130,15 +123,12 @@ FOR /F "skip=%passnumber% tokens=*" %%a IN ('type "%tmp%\tmpUCN.txt"') DO (
 )
 
 :starter
+::uninstconfirm will get reset each iteration so no need to clear
 echo. & echo %pname% & set /p uninstconfirm=Remove this program? [y/n]
-if '%uninstconfirm%'=='y' set uninstconfirm=true
-if '%uninstconfirm%'=='true' start /wait "uninstall" %c%
-set uninstconfirm=
+if '%uninstconfirm%'=='y' start /wait "uninstall" %c%
 SHIFT
 goto s2
 
 :exit
-if not "%t%"=="" call %0%t%
-endlocal
-del "%tmp%\tmpUC.txt" "%tmp%\tmpUCN.txt" "%tmp%\cmdUAC.vbs"
-exit /B
+::A note exit /b will attempt to kill the parent script (OS_Main) and lead to an error message in this script
+exit

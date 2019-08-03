@@ -1,26 +1,31 @@
 @ECHO off
-NET SESSION >nul 2>&1 && goto noUAC
-set n=%0 %*
-set n=%n:"=" ^& Chr(34) ^& "%
-echo Set objShell = CreateObject("Shell.Application")>"%tmp%\cmdUAC.vbs"
-echo objShell.ShellExecute "cmd.exe", "/c start " ^& Chr(34) ^& "." ^& Chr(34) ^& " /d " ^& Chr(34) ^& "%CD%" ^& Chr(34) ^& " cmd /c %n%", "", "runas", ^1>>"%tmp%\cmdUAC.vbs"
-cscript "%tmp%\cmdUAC.vbs" //Nologo
-del "%tmp%\cmdUAC.vbs"
+:: First step to elevate to admin (DONT REMOVE), rediret standard output stream to nul, and do the same for stndrd error output
+NET SESSION >nul 2>&1 && goto noUAC 
+:: Create a Visual basic elevation script here echo'ing the code to the file...
+echo Set vbsScript = CreateObject("Shell.Application")>"%tmp%\elevateVBS.vbs"
+:: ShellExecute "application" ( %~f0 resolves to the full path of the batch file, searching itself),
+:: "parameters" (Elevation script we want to run), "dir" (Current dir hence empty),
+:: "verb" (runas to elevate), window (1 is a normal window)
+echo vbsScript.ShellExecute "%~f0", "%tmp%\elevateVBS.vbs", "", "runas", 1 >>"%tmp%\elevateVBS.vbs"
+if exist "%tmp%\elevateVBS.vbs" start /b /wait >nul cscript /nologo "%tmp%\elevateVBS.vbs" 2>&1
+:: Delete elevation script if exist
+if exist "%tmp%\elevateVBS.vbs" > nul del /f "%tmp%\elevateVBS.vbs" 2>&1
 exit /B
 :noUAC
+::Get our current drive, and directory path
+title OS Check
+cd /D %~dp0
 
-cd /D \
-cd %~dp0
-
-ECHO %DATE% %TIME% %ver%
-
-wmic os get version
+ECHO %DATE% %TIME% 
+::OS Info below
+wmic OS get Caption, CSDVersion, OSArchitecture,Version
+wmic BIOS get Manufacturer,Name,SMBIOSBIOSVersion,Version
+wmic CPU get Name,NumberOfCores,NumberOfLogicalProcessors
 NETSTAT -nbo > %CD%\outwardconnections.txt
 nbtstat -n > %CD%\internalconnections.txt
 nbtstat -s >> %CD%\internalconnections.txt
 NET start > %CD%\serviceslist.txt 
 
-echo.
 SET /p responseCPU=Run CPU check (Y/N)?:
 IF /I "%responseCPU%"=="y" (
 tasklist /v
@@ -36,22 +41,25 @@ timeout /t 60
 )
 cls
 
-echo.
+SET /p responeseUSB=See what is connected (Y/N)?:
+IF /I "%responeseUSB%"=="y" (
+  wscript %CD%\USBConnections.vbs
+  start /wait %CD%\USBConnectedItems.txt
+)
+cls
+
 SET /p responseSys=Run system check (Y/N)?:
 IF /I "%responseSys%"=="y" (
-  wscript %CD:~0,3%OS_Check\USB.vbs
   sfc /scannow
 )
 cls
 
-echo.
 SET /p responseBloat=Search for Bloatware (Y/N)?:
 IF /I "%responseBloat%"=="y" (
-  start %CD:~0,3%OS_Check\Bloat_Cleaner.cmd
+  start /wait %CD%\Bloat_Cleaner.cmd
 )
 cls
 
-echo.
 SET /p responseDiag=Run diagnostics check (Y/N) (Windows 10 Only)?:
 IF /I "%responseDiag%"=="y" (
   netsh wlan show wlanreport > %CD%\wlanreport.txt
@@ -59,7 +67,6 @@ IF /I "%responseDiag%"=="y" (
 )
 cls
 
-echo.
 SET /p responseClean=Is CCleaner installed (Y/N)?:
 IF /I "%responseClean%"=="n" (
   ECHO Redirecting to CCleaner download page.
@@ -68,7 +75,6 @@ IF /I "%responseClean%"=="n" (
 )
 cls
 
-echo.
 SET /p responseCleanRun=Run CCleaner (Y/N)?:
 IF /I "%responseCleanRun%"=="y" (
   start "" "C:\Program Files\CCleaner\CCleaner64.exe"
